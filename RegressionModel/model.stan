@@ -30,9 +30,7 @@ parameters {
    real         beta0[N_CELLS]; // intercepts, not modeled with covariance. HMM Should they be?
    row_vector[2] beta[N_CELLS];
    
-   real<lower=0> residual_variance;  // half cauchy
-   
-   real residuals[N_RESPONSES]; // the residuals for each
+   real<lower=0> residual_variance;  // half cauchy 
 }
     
 model {    
@@ -68,7 +66,7 @@ model {
     
     // P( y_n | beta_c) -- given those betas, how likely is the data?
     for(r in 1:N_RESPONSES) {
-       residuals[r] ~ normal( beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r] - y[r], residual_variance);
+        y[r] ~ normal( beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r], residual_variance);
     }
     //print("covs=", covs); 
 }
