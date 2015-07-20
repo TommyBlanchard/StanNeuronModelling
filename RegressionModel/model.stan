@@ -27,13 +27,12 @@ parameters {
    
    simplex[M] mixture_weights; 
    
+   real         beta0[N_CELLS]; // intercepts, not modeled with covariance. HMM Should they be?
    row_vector[2] beta[N_CELLS];
    
    real<lower=0> residual_variance;  // half cauchy
    
    real residuals[N_RESPONSES]; // the residuals for each
-   
-  
 }
     
 model {    
@@ -50,12 +49,12 @@ model {
         covs[m] ~ inv_wishart(dim, identity);
     }
     
-    // P(beta_c | covs) -- marginalize over covs
-    
+    // P(beta_c | covs) -- marginalize over covs for computing the betas
     for (n in 1:N_CELLS) {
         
-        // put a uniform prior
-        beta[n] ~ uniform(-100,100);
+        // put a uniform prior, and penalize below
+        beta[n]  ~ uniform(-100,100);
+        beta0[n] ~ uniform(-100,100);
         
         // but then penalize by summing over covariances
         // Directly compute the marginalized log likelihood, since stan can't handle discrete variables
@@ -67,10 +66,9 @@ model {
         increment_log_prob(log_sum_exp(logps));
     }
     
-    // TODO:
     // P( y_n | beta_c) -- given those betas, how likely is the data?
     for(r in 1:N_RESPONSES) {
-       residuals[r] ~ normal( beta[cell[r],1]*x2[r] + beta[cell[r],2]*x2[r] - y[r], residual_variance);
+       residuals[r] ~ normal( beta0[cell[r]] + beta[cell[r],1]*x2[r] + beta[cell[r],2]*x2[r] - y[r], residual_variance);
     }
     //print("covs=", covs); 
 }

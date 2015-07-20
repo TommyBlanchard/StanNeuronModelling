@@ -1,10 +1,11 @@
 library(rstan)
 library(MASS) # For mvrnorm
-
+options(width=Sys.getenv("COLUMNS")) 
+ 
 modelcode <- paste(readLines('model.stan'), collapse = '\n')
 
-N_CELLS <- 20
-DATA_PER_CELL <- 30
+N_CELLS <- 50
+DATA_PER_CELL <- 150
 
 # Make up regression data
 betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
@@ -29,13 +30,17 @@ data <- list(N_CELLS=N_CELLS, M=2,
 
 # plot(data$beta) # look at our data
 
-myfit <- stan(model_code=modelcode, data=data, iter=1000, chains=1)
+myfit <- stan(model_code=modelcode, data=data, iter=10000, chains=4)
 
 
-print(myfit)
+# print(myfit)
+# 
+# plot(myfit)
 
-plot(myfit)
+# traceplot(myfit, pars = 'beta')
 
+traceplot(myfit, pars = 'residual_variance')
 
-
+print(myfit, pars='betas')
+print(myfit, pars='covs')
 
