@@ -54,7 +54,7 @@ model {
         
         // put a uniform prior, and penalize below
         beta[n]  ~ uniform(-100,100);
-        beta0[n] ~ uniform(-100,100);
+        beta0[n] ~ normal(0,100);
         
         // but then penalize by summing over covariances
         // Directly compute the marginalized log likelihood, since stan can't handle discrete variables
@@ -68,7 +68,7 @@ model {
     
     // P( y_n | beta_c) -- given those betas, how likely is the data?
     for(r in 1:N_RESPONSES) {
-       residuals[r] ~ normal( beta0[cell[r]] + beta[cell[r],1]*x2[r] + beta[cell[r],2]*x2[r] - y[r], residual_variance);
+       residuals[r] ~ normal( beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r] - y[r], residual_variance);
     }
     //print("covs=", covs); 
 }
