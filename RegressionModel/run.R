@@ -9,8 +9,8 @@ options(width=Sys.getenv("COLUMNS"))  # fix the number of columns
  
 modelcode <- paste(readLines('model.stan'), collapse = '\n')
 
-N_CELLS <- 50
-DATA_PER_CELL <- 150
+N_CELLS <- 500
+DATA_PER_CELL <- 100
 
 # Make up regression data
 betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
@@ -30,10 +30,12 @@ for(r in 1:nrow(betas)) {
 # l <- lm( y ~ (x1 + x2) * as.factor(cell) -x1-x2, data=d)
 
 # Construct the data to send
-data <- list(N_CELLS=N_CELLS, M=2,
+data <- list(N_CELLS=N_CELLS, 
+             M=2, 
              N_RESPONSES=nrow(d),
              dim=2,
-             alpha=c(1,1)*.1, # dirichlet prior
+             alpha=c(1,1)*.01, # dirichlet prior
+             #noise_alpha=c(1,1),
              x1=d$x1, x2=d$x2, cell=d$cell, y=d$y
              )            
 
@@ -49,8 +51,8 @@ myfit <- stan(model_code=modelcode, data=data, iter=1000, chains=1)
 
 # traceplot(myfit, pars = 'beta')
 
-traceplot(myfit, pars = 'residual_variance')
+# traceplot(myfit, pars = 'residual_variance')
 
-print(myfit, pars='betas')
+print(myfit, pars='beta')
 print(myfit, pars='covs')
-
+print(myfit, pars='mixture_weights')

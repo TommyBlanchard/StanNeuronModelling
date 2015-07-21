@@ -4,7 +4,7 @@ data {
     int<lower=0> N_CELLS; // Sample size
     int<lower=0> N_RESPONSES; // number of total responses (N_CELLS * responses per)
     int<lower=1> dim; // Number of dimensions
-    int<lower=1> M; // number of mixture components 
+    int<lower=1> M; // number of mixture components. The first is constrained to be essentially zero mean
     
     int  cell[N_RESPONSES]; // which cell is each response (grouping factor)
     real   x1[N_RESPONSES]; // predictors x1, x2
@@ -17,24 +17,26 @@ data {
 transformed data {
     vector[dim] zeros; //For now, means are zero
     matrix[dim,dim] identity; //Identity for scaling matrix
-    
+   
     zeros <- rep_vector(0, dim);
-    identity <- diag_matrix(rep_vector(1.0,dim)); 
+    identity <- diag_matrix(rep_vector(100.0,dim));    
 }
 
 parameters {
    cov_matrix[dim] covs[M];
    
    simplex[M] mixture_weights; 
+    
+   real           beta0[N_CELLS]; // intercepts, not modeled with covariance. HMM Should they be?
+   row_vector[dim] beta[N_CELLS];
    
-   real         beta0[N_CELLS]; // intercepts, not modeled with covariance. HMM Should they be?
-   row_vector[2] beta[N_CELLS];
-   
-   real<lower=0> residual_variance;  // half cauchy 
+   real<lower=0> residual_variance;  // half cauchy
+ 
 }
     
 model {    
     real logps[M]; // for saving log probs
+    real logpsnoise[2]; // noise or not?
     
     // P(residual_variance)
     residual_variance ~ cauchy(0, 25);
@@ -65,6 +67,7 @@ model {
     }
     
     // P( y_n | beta_c) -- given those betas, how likely is the data?
+    // well this comes from marginalizing over whether or not each is noise
     for(r in 1:N_RESPONSES) {
         y[r] ~ normal( beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r], residual_variance);
     }
