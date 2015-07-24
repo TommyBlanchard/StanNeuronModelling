@@ -6,7 +6,6 @@ rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores()) 
 
 # This command isn't working for me...? options(width=Sys.getenv("COLUMNS"))  # fix the number of columns
-=======
 options(width=Sys.getenv("COLUMNS"))  # fix the number of columns
 
 modelcode <- paste(readLines('model.stan'), collapse = '\n')
