@@ -5,7 +5,11 @@ library(MASS) # For mvrnorm
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores()) 
 
+<<<<<<< HEAD
 # This command isn't working for me...? options(width=Sys.getenv("COLUMNS"))  # fix the number of columns
+=======
+options(width=Sys.getenv("COLUMNS"))  # fix the number of columns
+>>>>>>> c5eb4f20bc0b8ebf231fad876f98e7645cba8635
  
 modelcode <- paste(readLines('model.stan'), collapse = '\n')
 
@@ -16,7 +20,10 @@ DATA_PER_CELL <- 100
 betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
 
 plot(betas)
+<<<<<<< HEAD
 abline(h=0,v=0)
+=======
+>>>>>>> c5eb4f20bc0b8ebf231fad876f98e7645cba8635
 
 d <- NULL
 for(r in 1:nrow(betas)) {
@@ -35,8 +42,12 @@ data <- list(N_CELLS=N_CELLS,
              M=2, 
              N_RESPONSES=nrow(d),
              dim=2,
+<<<<<<< HEAD
              alpha_cov_mix=c(1,1)*.01, # dirichlet prior
              alpha_noise_mix=c(1,1),
+=======
+             alpha=c(1,1)*.01, # dirichlet prior
+>>>>>>> c5eb4f20bc0b8ebf231fad876f98e7645cba8635
              #noise_alpha=c(1,1),
              x1=d$x1, x2=d$x2, cell=d$cell, y=d$y
              )            

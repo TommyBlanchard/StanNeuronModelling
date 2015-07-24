@@ -13,7 +13,6 @@ data <- list(N=N,M=2,
 
 
 plot(data$x) # look at our data
-abline(h=0,v=0)
 
 myfit <- stan(model_code=modelcode, data=data, iter=1000, chains=1)
 
