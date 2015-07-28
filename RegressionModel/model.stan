@@ -83,7 +83,6 @@ model {
            logps[m] <- log(mixture_weights[m]) + multi_normal_log(beta[n], zeros, covs[m]);
         }
         increment_log_prob(log_sum_exp(logps));
-    }
     
     // P( y_n | beta_c) -- given those betas, how likely is the data?
     // well this comes from marginalizing over whether or not each is noise
@@ -109,4 +108,4 @@ model {
     }
     //print("covs=", covs); 
 }
-
+}
