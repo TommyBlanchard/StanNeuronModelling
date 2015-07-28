@@ -41,9 +41,8 @@ parameters {
     
 model {    
     real logp_cov_beta[M]; // for saving log probs
-    real logp_noise_neuron; // for (temporarily) saving log prob of responses given neuron is noise
-    real logp_beta_neuron; // for (temporarily) saving log prob of responses given a neuron's betas
-    int r; //the current response being processed, used for while loop
+    vector[N_CELLS] logp_noise; // for saving log prob of responses given neuron is noise
+    vector[N_CELLS] logp_beta; // for saving log prob of responses given a neuron's betas
 
     real logps[M]; // for saving log probs
     real logpsnoise[2]; // noise or not?
@@ -57,7 +56,9 @@ model {
     
     // P(noise_weight)
     noise_weight ~ beta(alpha_noise_mix[1],alpha_noise_mix[2]);
-
+    
+    
+    
     // P(w)
     mixture_weights ~ dirichlet(alpha);
     
@@ -83,26 +84,23 @@ model {
         increment_log_prob(log_sum_exp(logp_cov_beta));
     }
     
+    logp_noise <- rep_vector(0, N_CELLS);
+    logp_beta <- rep_vector(0, N_CELLS); 
+
+    
     // P( y_n | beta_c) -- given those betas, how likely is the data?
     // well this comes from marginalizing over whether or not each is noise
-    r <- 1;
-    for(c in 1:N_CELLS) {
-        logp_noise_neuron <- 0;
-        logp_beta_neuron <- 0;
-        while(cell[r] == c) {
-            //The log prob of y, given that it is just noise. NOTE: Responses should be normalized, so using 0 should be fine
-            logp_noise_neuron <- logp_noise_neuron + normal_log(y[r],0,noise_error); 
+    for(r in 1:N_RESPONSES) {
+        logp_noise[cell[r]] <- logp_noise[cell[r]] + normal_log(y[r],0,noise_error);
         
-            //The log prob of y, given betas
-            logp_beta_neuron <- logp_beta_neuron + normal_log(y,beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r], signal_error); 
+        //The log prob of y, given betas
+        logp_beta[cell[r]] <- logp_beta[cell[r]] + normal_log(y[r],beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r], signal_error); 
         
-            //y[r] ~ normal( beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r], residual_variance);
-            r <- r + 1;
-        }
-        
-        //increment log prob by the prob of this neuron's responses
-        increment_log_prob(log_sum_exp(log(noise_weight) + logp_noise_neuron, log(1 - noise_weight) + logp_beta_neuron));
-        
+        //y[r] ~ normal( beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r], residual_variance);
+    }
     //print("covs=", covs); 
+    //increment log prob by the prob neurons' responses
+    for (n in 1:N_CELLS) {
+        increment_log_prob(log_sum_exp(log(noise_weight) + logp_noise[n], log(1 - noise_weight) + logp_beta[n]));
     }
 }
