@@ -1,6 +1,6 @@
 
 # shared R files for plotting etc. 
-
+library(car)
 
 plot_covs <- function(myfit,num_plots){
   #Plots the betas and draws ellipses to represent the covariance matrices
@@ -33,9 +33,27 @@ plot_covs <- function(myfit,num_plots){
     plot(beta[plot_iter,1,1:n_cells],beta[plot_iter,1,n_cells+1:n_cells])
     abline(h=0,v=0)
     adjusted_weight = (1-noise_weight[plot_iter])*mixture_weights[plot_iter,1,];
-    for(c in 1:numcovs){
+    for(c in 1:num_covs){
       cur_cov = matrix(covs[plot_iter,1,seq(c,length(covs[plot_iter,1,]),by=2)],nrow=2);
-      ellipse(c(0, 0), shape=cur_cov, radius=1, col=palette()[1+c], fill=TRUE, fill.alpha = adjusted_weight[c])
+      
+      e <- eigen(cur_cov)
+
+    # From http://stats.stackexchange.com/questions/9898/how-to-plot-an-ellipse-from-eigenvalues-and-eigenvectors-in-r
+    ctr <- c(0,0)
+    angles <- seq(0, 2*pi, length.out=200) 
+      eigVal  <- eigen(cur_cov)$values
+    eigVec  <- eigen(cur_cov)$vectors
+    eigScl  <- eigVec %*% diag(sqrt(eigVal))  # scale eigenvectors to length = square-root
+    xMat    <- rbind(ctr[1] + eigScl[1, ], ctr[1] - eigScl[1, ])
+    yMat    <- rbind(ctr[2] + eigScl[2, ], ctr[2] - eigScl[2, ])
+    ellBase <- cbind(sqrt(eigVal[1])*cos(angles), sqrt(eigVal[2])*sin(angles)) # normal ellipse
+    ellRot  <- eigVec %*% t(ellBase)  # rotated ellipse
+    mycol <- palette()[1+c]
+    lines((ellRot+ctr)[1, ], (ellRot+ctr)[2, ], asp=1, type="l", lwd=2, col=mycol)
+    matlines(xMat, yMat, lty=1, lwd=2, col=mycol)
+    points(ctr[1], ctr[2], pch=4, col=mycol, lwd=3)
+      
+#       ellipse(c(0, 0), shape=cur_cov, radius=1, col=palette()[1+c], fill=TRUE, fill.alpha = adjusted_weight[c])
     }
   }
 }
@@ -46,9 +64,9 @@ plot_beta_dif <- function(myfit,given_betas){
   #Eventually, use this to compare betas to betas obtained through
   #regular linear regression
   extracted_beta = extract(myfit,pars='beta', permuted='false');
-  num_iter = dim(beta)[1];
-  n_cells = dim(beta)[3]/2;
-  model_beta = matrix(model_beta[num_iter,1,],nrow=n_cells);
+  num_iter = dim(extracted_beta)[1];
+  n_cells = dim(extracted_beta)[3]/2;
+  model_beta = matrix(extracted_beta[num_iter,1,],nrow=n_cells);
   beta_dif = model_beta - given_betas;
   plot(beta_dif)
 }

@@ -38,15 +38,13 @@ data <- list(N_CELLS=N_CELLS,
              dim=2,
              alpha_cov_mix=c(1,1)*.01, # dirichlet prior
              alpha_noise_mix=c(1,1),
-             alpha=c(1,1)*.01, # dirichlet prior
-             #noise_alpha=c(1,1),
              x1=d$x1, x2=d$x2, cell=d$cell, y=d$y
              )            
 
 
 # plot(data$beta) # look at our data
 
-myfit <- stan(model_code=modelcode, data=data, iter=1000, chains=1)
+myfit <- stan(model_code=modelcode, data=data, iter=1000, warmup=10, chains=1)
 
 
 # print(myfit)
@@ -60,3 +58,7 @@ myfit <- stan(model_code=modelcode, data=data, iter=1000, chains=1)
 print(myfit, pars='beta')
 print(myfit, pars='covs')
 print(myfit, pars='mixture_weights')
+
+print(myfit, pars='noise_weight')
+
+plot_beta_dif(myfit, betas)

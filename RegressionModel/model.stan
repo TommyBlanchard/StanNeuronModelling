@@ -14,7 +14,6 @@ data {
     
     vector[M] alpha_cov_mix; // dirichlet priors
     vector[2] alpha_noise_mix; //beta prior
-    vector[M] alpha; // dirichlet prior
 }
 
 transformed data {
@@ -55,12 +54,7 @@ model {
     mixture_weights ~ dirichlet(alpha_cov_mix);
     
     // P(noise_weight)
-    noise_weight ~ beta(alpha_noise_mix[1],alpha_noise_mix[2]);
-    
-    
-    
-    // P(w)
-    mixture_weights ~ dirichlet(alpha);
+    noise_weight ~ beta(alpha_noise_mix[1], alpha_noise_mix[2]);
     
     // P(cov)
     for (m in 1:M) {
