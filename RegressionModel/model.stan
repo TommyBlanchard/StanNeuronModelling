@@ -36,6 +36,7 @@ parameters {
    real<lower=0> signal_error;  // half cauchy
    real<lower=0> noise_error;  // half cauchy
  
+   vector<lower=0>[2] scale; 
 }
     
 model {    
@@ -49,6 +50,9 @@ model {
     // P(signal_error)
     signal_error ~ cauchy(0, 25);
     noise_error  ~ cauchy(0, 25);
+    
+    // P(scaling factors)
+    scale ~ normal(0, 1.0);
     
     // P(mixture_weights)
     mixture_weights ~ dirichlet(alpha_cov_mix);
@@ -72,8 +76,11 @@ model {
         // Directly compute the marginalized log likelihood, since stan can't handle discrete variables
         // see: http://www.michaelchughes.com/blog/2012/09/review-of-stan-off-the-shelf-hamiltonian-mcmc/
         for (m in 1:M) {
+            
+//             tmpcov = diag_matrix(scale);
+            //;
             // prob of the betas
-           logp_cov_beta[m] <- log(mixture_weights[m]) + multi_normal_log(beta[n], zeros, covs[m]);
+           logp_cov_beta[m] <- log(mixture_weights[m]) + multi_normal_log(beta[n], zeros, diag_matrix(scale)*covs[m]*diag_matrix(scale));
         }
         increment_log_prob(log_sum_exp(logp_cov_beta));
     }
