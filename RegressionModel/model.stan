@@ -1,4 +1,3 @@
-// List of matrices in R: https://groups.google.com/forum/#!topic/stan-users/-6s9PvVsyug
 
 data {
     int<lower=0> N_CELLS; // Sample size
@@ -21,7 +20,7 @@ transformed data {
     matrix[dim,dim] identity; //Identity for scaling matrix
    
     zeros <- rep_vector(0, dim);
-    identity <- diag_matrix(rep_vector(100.0,dim));    
+    identity <- diag_matrix(rep_vector(1.0,dim));    
 }
 
 parameters {
@@ -36,23 +35,24 @@ parameters {
    real<lower=0> signal_error;  // half cauchy
    real<lower=0> noise_error;  // half cauchy
  
-   vector<lower=0>[2] scale; 
+   vector<lower=0>[2] scale; // half normal
 }
     
 model {    
     real logp_cov_beta[M]; // for saving log probs
-    vector[N_CELLS] logp_noise; // for saving log prob of responses given neuron is noise
-    vector[N_CELLS] logp_beta; // for saving log prob of responses given a neuron's betas
-
+  
     real logps[M]; // for saving log probs
     real logpsnoise[2]; // noise or not?
-    
+
+    vector[N_CELLS] logp_noise; // for saving log prob of responses given neuron is noise
+    vector[N_CELLS] logp_beta;  // for saving log prob of responses given a neuron's betas
+
     // P(signal_error)
-    signal_error ~ cauchy(0, 25);
-    noise_error  ~ cauchy(0, 25);
+    signal_error ~ cauchy(0, 1);
+    noise_error  ~ cauchy(0, 1);
     
     // P(scaling factors)
-    scale ~ normal(0, 1.0);
+    scale ~ cauchy(0, 1);
     
     // P(mixture_weights)
     mixture_weights ~ dirichlet(alpha_cov_mix);
@@ -68,40 +68,32 @@ model {
     // P(beta_c | covs) -- marginalize over covs for computing the betas
     for (n in 1:N_CELLS) {
         
-        // put a uniform prior, and penalize below
-        beta[n]  ~ uniform(-100,100);
-        beta0[n] ~ normal(0,100);
+        beta0[n] ~ normal(0,1);
         
         // but then penalize by summing over covariances
         // Directly compute the marginalized log likelihood, since stan can't handle discrete variables
         // see: http://www.michaelchughes.com/blog/2012/09/review-of-stan-off-the-shelf-hamiltonian-mcmc/
         for (m in 1:M) {
-            
-//             tmpcov = diag_matrix(scale);
-            //;
-            // prob of the betas
+           // prob of the betas
            logp_cov_beta[m] <- log(mixture_weights[m]) + multi_normal_log(beta[n], zeros, diag_matrix(scale)*covs[m]*diag_matrix(scale));
         }
         increment_log_prob(log_sum_exp(logp_cov_beta));
     }
     
-    logp_noise <- rep_vector(0, N_CELLS);
-    logp_beta <- rep_vector(0, N_CELLS); 
-
+    logp_noise <- rep_vector(0.0, N_CELLS);
+    logp_beta  <- rep_vector(0.0, N_CELLS); 
     
     // P( y_n | beta_c) -- given those betas, how likely is the data?
-    // well this comes from marginalizing over whether or not each is noise
+    // well this comes from marginalizing over whether or not each cell is noise (meaning we must take the product of its responses)
     for(r in 1:N_RESPONSES) {
-        logp_noise[cell[r]] <- logp_noise[cell[r]] + normal_log(y[r],0,noise_error);
-        
-        //The log prob of y, given betas
-        logp_beta[cell[r]] <- logp_beta[cell[r]] + normal_log(y[r],beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r], signal_error); 
-        
-        //y[r] ~ normal( beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r], residual_variance);
+        logp_noise[cell[r]] <- logp_noise[cell[r]] + normal_log(y[r], 0, noise_error);
+        logp_beta[cell[r]]  <- logp_beta[cell[r]]  + normal_log(y[r], beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r], signal_error); 
+        // y[r] ~ normal( beta0[cell[r]] + beta[cell[r],1]*x1[r] + beta[cell[r],2]*x2[r], signal_error);
     }
+
+    for (n in 1:N_CELLS) {   
+        increment_log_prob(log_sum_exp(log(noise_weight) + logp_noise[n], log(1.0-noise_weight) + logp_beta[n]));
+    }
+    
     //print("covs=", covs); 
-    //increment log prob by the prob neurons' responses
-    for (n in 1:N_CELLS) {
-        increment_log_prob(log_sum_exp(log(noise_weight) + logp_noise[n], log(1 - noise_weight) + logp_beta[n]));
-    }
 }
