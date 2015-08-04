@@ -17,6 +17,7 @@ plot_covs <- function(myfit,num_plots){
   beta = extract(myfit,pars='beta', permuted='false');
   mixture_weights = extract(myfit,pars='mixture_weights', permuted='false');
   noise_weight = extract(myfit,pars='noise_weight', permuted='false');
+  scale = extract(myfit, pars='scale', permuted='false');
   
   num_covs = dim(covs)[3]/4;
   num_iter = dim(covs)[1];
@@ -34,10 +35,12 @@ plot_covs <- function(myfit,num_plots){
     abline(h=0,v=0)
     adjusted_weight = (1-noise_weight[plot_iter])*mixture_weights[plot_iter,1,];
     for(c in 1:num_covs){
-      cur_cov = matrix(covs[plot_iter,1,seq(c,length(covs[plot_iter,1,]),by=2)],nrow=2);
+      unscaled_cov = matrix(covs[plot_iter,1,seq(c,length(covs[plot_iter,1,]),by=2)],nrow=2);
+      s = diag(c(scale[plot_iter,1,1], scale[plot_iter,1,2]))
+      cur_cov = s %*% unscaled_cov %*% s
       
       e <- eigen(cur_cov)
-
+      
     # From http://stats.stackexchange.com/questions/9898/how-to-plot-an-ellipse-from-eigenvalues-and-eigenvectors-in-r
     ctr <- c(0,0)
     angles <- seq(0, 2*pi, length.out=200) 
@@ -66,7 +69,10 @@ plot_beta_dif <- function(myfit,given_betas){
   extracted_beta = extract(myfit,pars='beta', permuted='false');
   num_iter = dim(extracted_beta)[1];
   n_cells = dim(extracted_beta)[3]/2;
-  model_beta = matrix(extracted_beta[num_iter,1,],nrow=n_cells);
-  beta_dif = model_beta - given_betas;
-  plot(beta_dif)
+#   model_beta = matrix(extracted_beta[num_iter,1,],nrow=n_cells);
+#   beta_dif = model_beta - given_betas;
+
+  model_means = apply( extracted_beta, 3, mean) # compute the mean over samples
+  plot(given_betas, model_means)
+  abline(0,1)
 }
