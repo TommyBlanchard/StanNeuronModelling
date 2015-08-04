@@ -26,7 +26,6 @@ parameters {
    cov_matrix[dim] covs[M];
    
    simplex[M] mixture_weights; 
-   real<lower=0, upper=1> noise_weight;
     
    real           beta0[N_CELLS]; // intercepts, not modeled with covariance. HMM Should they be?
    row_vector[dim] beta[N_CELLS];

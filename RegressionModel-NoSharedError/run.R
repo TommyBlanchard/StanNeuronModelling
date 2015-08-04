@@ -67,8 +67,6 @@ print(myfit, pars='covs')
 
 print(myfit, pars='mixture_weights')
 
-print(myfit, pars='noise_weight')
-
 print(myfit, pars='scale')
 
 print(myfit, pars='noise_error')
