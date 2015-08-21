@@ -16,7 +16,7 @@ plot_covs <- function(myfit,num_plots){
   covs = extract(myfit,pars='covs', permuted='false');
   beta = extract(myfit,pars='beta', permuted='false');
   mixture_weights = extract(myfit,pars='mixture_weights', permuted='false');
-  noise_weight = extract(myfit,pars='noise_weight', permuted='false');
+  #noise_weight = extract(myfit,pars='noise_weight', permuted='false');
   scale = extract(myfit, pars='scale', permuted='false');
   
   num_covs = dim(covs)[3]/4;
@@ -25,7 +25,7 @@ plot_covs <- function(myfit,num_plots){
   
   iter = floor(num_iter/num_plots);
   
-  plot_rows = sqrt(num_plots);
+  plot_rows = floor(sqrt(num_plots));
   plot_cols = ceiling(num_plots/plot_rows);
   par(mfrow=c(plot_rows,plot_cols))
   for(i in 1:num_plots){
@@ -33,7 +33,7 @@ plot_covs <- function(myfit,num_plots){
     plot_iter = iter*i;
     plot(beta[plot_iter,1,1:n_cells],beta[plot_iter,1,n_cells+1:n_cells])
     abline(h=0,v=0)
-    adjusted_weight = (1-noise_weight[plot_iter])*mixture_weights[plot_iter,1,];
+    adjusted_weight = mixture_weights[plot_iter,1,];#(1-noise_weight[plot_iter])*
     for(c in 1:num_covs){
       unscaled_cov = matrix(covs[plot_iter,1,seq(c,length(covs[plot_iter,1,]),by=2)],nrow=2);
       s = diag(c(scale[plot_iter,1,1], scale[plot_iter,1,2]))
@@ -75,4 +75,56 @@ plot_beta_dif <- function(myfit,given_betas){
   model_means = apply( extracted_beta, 3, mean) # compute the mean over samples
   plot(given_betas, model_means)
   abline(0,1)
+}
+
+hist_cov_angle <- function(myfit,ind1,ind2){
+  #requires the fit, and the covariance matrix indices
+  covs = extract(myfit,pars='covs', permuted='false');
+  
+  num_iter = dim(covs)[1];
+  
+  theta = numeric(length = num_iter);
+  
+  for(i in 1:num_iter){
+    # Get the eigenvectors for the covariance matrices
+      cov1 = matrix(covs[i,1,seq(ind1,length(covs[i,1,]),by=2)],nrow=2);
+      eig1 = eigen(cov1)$vectors[,1];
+      cov2 = matrix(covs[i,1,seq(ind2,length(covs[i,1,]),by=2)],nrow=2);
+      eig2 = eigen(cov2)$vectors[,1];
+      
+      #Calculate angle (gives angle between -180 and +180)
+      theta[i] = (atan2(cov1[2],cov1[1]) - atan2(cov2[2],cov2[1])) * (180/pi);
+      
+ }
+  hist(theta)
+  
+  sorted_theta = theta[order(theta)];
+  
+  #print intervals and stuff
+}
+
+hist_eigen_ratio <- function(myfit,ind1){
+  #requires the fit, and the covariance matrix index
+  #plots a histogram of the ratio of the eigenvectors of the cov
+  covs = extract(myfit,pars='covs', permuted='false');
+  
+  num_iter = dim(covs)[1];
+  
+  eig_ratio = numeric(length = num_iter);
+  
+  for(i in 1:num_iter){
+    # Get the eigenvectors for the covariance matrices
+    cov1 = matrix(covs[i,1,seq(ind1,length(covs[i,1,]),by=2)],nrow=2);
+    eig1 = eigen(cov1)$values[1];
+    eig2 = eigen(cov1)$values[2];
+    
+    #Calculate ratio - the closer to 1 this is, the more circular. 
+    #The closer to 0, the flatter
+    eig_ratio[i] = eig2/eig1;
+  }
+  hist(eig_ratio)
+  
+  eig_ratio = eig_ratio[order(eig_ratio)];
+  
+  #print intervals and stuff
 }
