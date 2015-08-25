@@ -14,6 +14,8 @@ modelcode <- paste(readLines('model.stan'), collapse = '\n')
 N_CELLS <- 100
 DATA_PER_CELL <- 100
 
+s <- rep.int(DATA_PER_CELL,N_CELLS) # Number of responses in each cell
+
 set.seed(100)
 
 # Make up regression data
@@ -60,7 +62,7 @@ data <- list(N_CELLS=N_CELLS,
 
 # plot(data$beta) # look at our data
 
-myfit <- stan(model_code=modelcode, data=data, iter=1000, chains=1, warmup=10) #, control=list(stepsize=0.001))
+myfit <- stan(model_code=modelcode, data=data, iter=1000, chains=1) #, control=list(stepsize=0.001))
 # myfit <- stan(model_code=modelcode, data=data, iter=10000, warmup=10, chains=1, control=list(adapt_engaged=FALSE), algorithm="HMC")
 # myfit <- stan(model_code=modelcode, data=data, iter=10000, warmup=10, chains=1, algorithm="HMC")
 # myfit <- stan(model_code=modelcode, data=data, iter=500000, warmup=5, chains=1) # Holy crap warmup takes forever
