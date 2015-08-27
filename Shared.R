@@ -35,7 +35,7 @@ plot_covs <- function(myfit,num_plots){
     abline(h=0,v=0)
     adjusted_weight = mixture_weights[plot_iter,1,];#(1-noise_weight[plot_iter])*
     for(c in 1:num_covs){
-      unscaled_cov = matrix(covs[plot_iter,1,seq(c,length(covs[plot_iter,1,]),by=2)],nrow=2);
+      unscaled_cov = matrix(covs[plot_iter,1,seq(c,length(covs[plot_iter,1,]),by=num_covs)],nrow=2);
       s = diag(c(scale[plot_iter,1,1], scale[plot_iter,1,2]))
       cur_cov = s %*% unscaled_cov %*% s
       

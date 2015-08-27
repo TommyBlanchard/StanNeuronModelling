@@ -32,6 +32,10 @@ betas <- rbind(mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nro
 # 1 circular cov
 betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(3,0,0,3), nrow=2))
 
+# 2 orthogonal covs + noise (half noise)
+betas <- rbind(mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))
+
+
 # Show our betas
 plot(betas)
 abline(h=0,v=0)
@@ -51,10 +55,11 @@ for(r in 1:nrow(betas)) {
 
 # Construct the data to send
 data <- list(N_CELLS=N_CELLS, 
-             M=2, 
+             s=s,
+             M=3, 
              N_RESPONSES=nrow(d),
              dim=2,
-             alpha_cov_mix=c(1,1)*.1, # dirichlet prior
+             alpha_cov_mix=c(1,1,1)*.1, # dirichlet prior
              alpha_noise_mix=c(1,10), # Set a prior favoring signal over noise
              x1=d$x1, x2=d$x2, cell=d$cell, y=d$y
 )              
