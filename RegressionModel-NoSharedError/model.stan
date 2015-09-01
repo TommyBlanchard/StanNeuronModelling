@@ -25,9 +25,9 @@ transformed data {
 
 parameters {
    cov_matrix[dim] covs[M];
+   simplex[M] mixture_weights;
+   real<lower=0, upper=1> noise_weight;
    
-   simplex[M] mixture_weights; 
-    
    real           beta0[N_CELLS]; // intercepts, not modeled with covariance. HMM Should they be?
    row_vector[dim] beta[N_CELLS];
    real<lower=0>  noise[N_CELLS];
@@ -38,8 +38,8 @@ parameters {
 model {    
     real logp_cov_beta[M]; // for saving log probs
   
-    real logps[M]; // for saving log probs
-    real logpsnoise[2]; // noise or not?
+    real logp_noise_neuron; // for saving log probs
+    real logp_beta_neuron; 
     
     int pos; //For holding position in our ragged array
 
@@ -70,8 +70,13 @@ model {
         
         // P( y_n | beta_c) -- given those betas, how likely is the data?
         // well this comes from marginalizing over whether or not each cell is noise (meaning we must take the product of its responses)
+        logp_noise_neuron <- 0;
+        logp_beta_neuron <- 0;
         //This "segment" method is the suggested way of efficiently vectorizing in a "ragged array" setup like we have. See Stan Manual pg 135
-        segment(y, pos, s[n]) ~ normal( beta0[n] + beta[n,1]*segment(x1, pos, s[n]) + beta[n,2]*segment(x2, pos, s[n]), noise[n]);
+        logp_beta_neuron <- normal_log(segment(y, pos, s[n]), beta0[n] + beta[n,1]*segment(x1, pos, s[n]) + beta[n,2]*segment(x2, pos, s[n]), noise[n]);
+        logp_noise_neuron <- normal_log(segment(y, pos, s[n]), 0, noise[n]);
+        increment_log_prob(log_sum_exp(log(1.0 - noise_weight) + logp_beta_neuron, log(noise_weight) + logp_noise_neuron));
+        //segment(y, pos, s[n]) ~ normal( beta0[n] + beta[n,1]*segment(x1, pos, s[n]) + beta[n,2]*segment(x2, pos, s[n]), noise[n]);
         pos <- pos + s[n];
     }
 
