@@ -1,4 +1,3 @@
-
 data {
     int<lower=0> N_CELLS; // Sample size
     int<lower=0> N_RESPONSES; // number of total responses (N_CELLS * responses per)
@@ -26,7 +25,7 @@ transformed data {
 }
 
 parameters {
-   cov_matrix[dim] covs[M];
+   corr_matrix[dim] covs[M];
    simplex[M] mixture_weights;
    real<lower=0, upper=1> noise_weight;
    
@@ -46,7 +45,7 @@ model {
     int pos; //For holding position in our ragged array
 
     // P(scaling factors)
-    scale ~ cauchy(0, 10);
+    scale ~ cauchy(0, 2.5);
     
     // P(mixture_weights)
     mixture_weights ~ dirichlet(alpha_cov_mix);
@@ -56,13 +55,13 @@ model {
     
     // P(cov)
     for (m in 1:M) {
-        covs[m] ~ inv_wishart(dim, identity);
+        covs[m] ~ lkj_corr(1);
     }
     pos <- 1;
     for (n in 1:N_CELLS) {
         // P(beta_c | covs) -- marginalize over covs for computing the betas
         beta0[n] ~ normal(0,10);
-        noise[n] ~ cauchy(0,10);
+        noise[n] ~ cauchy(0,2.5);
         
         // but then penalize by summing over covariances
         // Directly compute the marginalized log likelihood, since stan can't handle discrete variables
