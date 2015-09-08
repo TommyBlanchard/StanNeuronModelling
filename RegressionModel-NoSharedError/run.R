@@ -53,13 +53,15 @@ for(r in 1:nrow(betas)) {
 # If we wanted to recover the coefficients
 # l <- lm( y ~ (x1 + x2) * as.factor(cell) -x1-x2, data=d)
 
+M = 2;
+
 # Construct the data to send
 data <- list(N_CELLS=N_CELLS, 
              s=s,
-             M=3, 
+             M=M, 
              N_RESPONSES=nrow(d),
              dim=2,
-             alpha_cov_mix=c(1,1,1)*.1, # dirichlet prior
+             alpha_cov_mix=array(c(1,1)*.1,dim=M), # dirichlet prior
              alpha_noise_mix=c(1,10), # Set a prior favoring signal over noise
              x1=d$x1, x2=d$x2, cell=d$cell, y=d$y
 )              
@@ -68,6 +70,7 @@ data <- list(N_CELLS=N_CELLS,
 # plot(data$beta) # look at our data
 
 myfit <- stan(model_code=modelcode, data=data, iter=1000, chains=1) #, control=list(stepsize=0.001))
+
 # myfit <- stan(model_code=modelcode, data=data, iter=10000, warmup=10, chains=1, control=list(adapt_engaged=FALSE), algorithm="HMC")
 # myfit <- stan(model_code=modelcode, data=data, iter=10000, warmup=10, chains=1, algorithm="HMC")
 # myfit <- stan(model_code=modelcode, data=data, iter=500000, warmup=5, chains=1) # Holy crap warmup takes forever
@@ -76,7 +79,7 @@ myfit <- stan(model_code=modelcode, data=data, iter=1000, chains=1) #, control=l
 # 
  plot(myfit)
 
-# traceplot(myfit, pars = 'beta')
+traceplot(myfit, pars = 'beta')
 
 # traceplot(myfit, pars = 'residual_variance')
 
