@@ -24,16 +24,16 @@ set.seed(100)
 betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
 
 # 2 covs, orthogonal to each other
-betas <- rbind(mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)))
+#betas <- rbind(mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)))
 
 # 1 cov + noise (half and half)
-betas <- rbind(mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))
+#betas <- rbind(mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))
 
 # 1 circular cov
-betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(3,0,0,3), nrow=2))
+#betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(3,0,0,3), nrow=2))
 
 # 2 orthogonal covs + noise (half noise)
-betas <- rbind(mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))
+#betas <- rbind(mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))
 
 
 # Show our betas
@@ -53,7 +53,7 @@ for(r in 1:nrow(betas)) {
 # If we wanted to recover the coefficients
 # l <- lm( y ~ (x1 + x2) * as.factor(cell) -x1-x2, data=d)
 
-M = 2;
+M = 1;
 
 # Construct the data to send
 data <- list(N_CELLS=N_CELLS, 
@@ -61,7 +61,7 @@ data <- list(N_CELLS=N_CELLS,
              M=M, 
              N_RESPONSES=nrow(d),
              dim=2,
-             alpha_cov_mix=array(c(1,1)*.1,dim=M), # dirichlet prior
+             alpha_cov_mix=array(rep(.1,M),dim=M), # dirichlet prior. Need to declare as array to work with M=1
              alpha_noise_mix=c(1,10), # Set a prior favoring signal over noise
              x1=d$x1, x2=d$x2, cell=d$cell, y=d$y
 )              
