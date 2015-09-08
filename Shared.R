@@ -107,14 +107,18 @@ hist_eigen_ratio <- function(myfit,ind1){
   #requires the fit, and the covariance matrix index
   #plots a histogram of the ratio of the eigenvectors of the cov
   covs = extract(myfit,pars='covs', permuted='false');
+  scale = extract(myfit, pars='scale', permuted='false');
   
+  num_covs = dim(covs)[3]/4;
   num_iter = dim(covs)[1];
   
   eig_ratio = numeric(length = num_iter);
   
   for(i in 1:num_iter){
     # Get the eigenvectors for the covariance matrices
-    cov1 = matrix(covs[i,1,seq(ind1,length(covs[i,1,]),by=2)],nrow=2);
+    unscaled_cov = matrix(covs[i,1,seq(ind1,length(covs[i,1,]),by=num_covs)],nrow=2);
+    s = diag(c(scale[i,1,1], scale[i,1,2]));
+    cov1 = s %*% unscaled_cov %*% s;
     eig1 = eigen(cov1)$values[1];
     eig2 = eigen(cov1)$values[2];
     
