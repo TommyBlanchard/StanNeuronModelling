@@ -11,7 +11,7 @@ options(width=Sys.getenv("COLUMNS"))  # fix the number of columns
 
 modelcode <- paste(readLines('model.stan'), collapse = '\n')
 
-N_CELLS <- 100
+N_CELLS <- 1000
 DATA_PER_CELL <- 100
 
 s <- rep.int(DATA_PER_CELL,N_CELLS) # Number of responses in each cell
@@ -21,7 +21,7 @@ set.seed(100)
 # Make up regression data
 
 # 1 cov with positively correlated variables
-betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
+#betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
 
 # 2 covs, orthogonal to each other
 #betas <- rbind(mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)))
@@ -30,7 +30,7 @@ betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
 #betas <- rbind(mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))
 
 # 1 circular cov
-#betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(3,0,0,3), nrow=2))
+betas <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(3,0,0,3), nrow=2))
 
 # 2 orthogonal covs + noise (half noise)
 #betas <- rbind(mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))

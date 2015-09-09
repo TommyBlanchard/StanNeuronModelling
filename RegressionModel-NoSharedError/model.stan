@@ -11,9 +11,8 @@ data {
     vector[N_RESPONSES]   x2; // predictors x1, x2
     vector[N_RESPONSES]    y; // the response
     
-    vector[M] alpha_cov_mix; // dirichlet priors
     vector[2] alpha_noise_mix; //beta prior
-        
+    vector[M] alpha_cov_mix; // dirichlet priors    
 }
 
 transformed data {
@@ -25,7 +24,7 @@ transformed data {
 }
 
 parameters {
-   corr_matrix[dim] covs[M];
+   corr_matrix[dim] covs[M]; //If we keep the lkj version, rename this variable - no longer a covariance matrix!
    simplex[M] mixture_weights;
    real<lower=0, upper=1> noise_weight;
    
@@ -33,10 +32,12 @@ parameters {
    row_vector[dim] beta[N_CELLS];
    real<lower=0>  noise[N_CELLS];
    
-   vector<lower=0>[2] scale; // half normal
+   vector<lower=0>[dim] scale; // Prior for scale (cauchy)
 }
     
 model {    
+    matrix[dim,dim] Sigma_beta;
+
     real logp_cov_beta[M]; // for saving log probs
   
     real logp_noise_neuron; // for saving log probs
@@ -55,8 +56,9 @@ model {
     
     // P(cov)
     for (m in 1:M) {
-        covs[m] ~ lkj_corr(1);
+        covs[m] ~ lkj_corr(1); //lkj(1) gives equal prob to positive, negative, and no correlation
     }
+    
     pos <- 1;
     for (n in 1:N_CELLS) {
         // P(beta_c | covs) -- marginalize over covs for computing the betas
