@@ -11,7 +11,7 @@ options(width=Sys.getenv("COLUMNS"))  # fix the number of columns
 
 modelcode <- paste(readLines('model.stan'), collapse = '\n')
 
-N_CELLS <- 1000
+N_CELLS <- 200
 DATA_PER_CELL <- 100
 
 set.seed(100)
@@ -56,25 +56,25 @@ betas_1circcov <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(3,0,0,3), nrow=2)
 betas_2orthcov_noise <- rbind(mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))        
 
 data= make_data(betas_1poscov,N_CELLS,DATA_PER_CELL, 1);
-fit1cov_1poscov <- stan(model_code=modelcode, data=data, iter=1000, chains=5);
+fit1cov_1poscov <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
 
 data= make_data(betas_1poscov,N_CELLS,DATA_PER_CELL, 2);
-fit2cov_1poscov <- stan(model_code=modelcode, data=data, iter=1000, chains=5);
+fit2cov_1poscov <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
 
 data= make_data(betas_2orthcov,N_CELLS,DATA_PER_CELL, 2);
-fit2cov_2orthcov <- stan(model_code=modelcode, data=data, iter=1000, chains=5);
+fit2cov_2orthcov <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
 
 data= make_data(betas_1poscov_noise,N_CELLS,DATA_PER_CELL, 1);
-fit1cov_1poscov_noise <- stan(model_code=modelcode, data=data, iter=1000, chains=5);
+fit1cov_1poscov_noise <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
 
 data= make_data(betas_1poscov_noise,N_CELLS,DATA_PER_CELL, 2);
-fit2cov_1poscov_noise <- stan(model_code=modelcode, data=data, iter=1000, chains=5);
+fit2cov_1poscov_noise <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
 
 data= make_data(betas_1circcov,N_CELLS,DATA_PER_CELL, 1);
-fit1cov_1circcov <- stan(model_code=modelcode, data=data, iter=1000, chains=5);
+fit1cov_1circcov <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
 
 data= make_data(betas_1circcov,N_CELLS,DATA_PER_CELL, 2);
-fit2cov_1circcov <- stan(model_code=modelcode, data=data, iter=1000, chains=5);
+fit2cov_1circcov <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
 
 data= make_data(betas_2orthcov_noise,N_CELLS,DATA_PER_CELL, 2);
-fit2cov_2orthcov_noise <- stan(model_code=modelcode, data=data, iter=1000, chains=5);
+fit2cov_2orthcov_noise <- stan(model_code=modelcode, data=data, iter=1000, chains=4);

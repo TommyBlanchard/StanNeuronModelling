@@ -17,10 +17,8 @@ data {
 
 transformed data {
     vector[dim] zeros; //For now, means are zero
-    matrix[dim,dim] identity; //Identity for scaling matrix
    
     zeros <- rep_vector(0, dim);
-    identity <- diag_matrix(rep_vector(1.0,dim));    
 }
 
 parameters {
@@ -32,7 +30,7 @@ parameters {
    row_vector[dim] beta[N_CELLS];
    real<lower=0>  noise[N_CELLS];
    
-   vector<lower=0>[dim] scale; // Prior for scale (cauchy)
+   vector<lower=0>[dim] scale[M]; // Prior for scale (cauchy)
 }
     
 model {    
@@ -44,9 +42,6 @@ model {
     real logp_beta_neuron; 
     
     int pos; //For holding position in our ragged array
-
-    // P(scaling factors)
-    scale ~ cauchy(0, 2.5);
     
     // P(mixture_weights)
     mixture_weights ~ dirichlet(alpha_cov_mix);
@@ -54,8 +49,9 @@ model {
     // P(noise_weight)
     noise_weight ~ beta(alpha_noise_mix[1],alpha_noise_mix[2]);
     
-    // P(cov)
+    // P(cov), P(scaling factors)
     for (m in 1:M) {
+        scale[m] ~ cauchy(0, 2.5);
         covs[m] ~ lkj_corr(1); //lkj(1) gives equal prob to positive, negative, and no correlation
     }
     
@@ -70,7 +66,7 @@ model {
         // see: http://www.michaelchughes.com/blog/2012/09/review-of-stan-off-the-shelf-hamiltonian-mcmc/
         for (m in 1:M) {
            // prob of the betas
-           logp_cov_beta[m] <- log(mixture_weights[m]) + multi_normal_log(beta[n], zeros, diag_matrix(scale)*covs[m]*diag_matrix(scale));
+           logp_cov_beta[m] <- log(mixture_weights[m]) + multi_normal_log(beta[n], zeros, diag_matrix(scale[m])*covs[m]*diag_matrix(scale[m]));
         }
         increment_log_prob(log_sum_exp(logp_cov_beta));
         
