@@ -11,7 +11,7 @@ options(width=Sys.getenv("COLUMNS"))  # fix the number of columns
 
 modelcode <- paste(readLines('beta_model.stan'), collapse = '\n')
 
-N_CELLS <- 400
+N_CELLS <- 100
 DATA_PER_CELL <- 200
 
 set.seed(100)
@@ -19,7 +19,7 @@ set.seed(100)
 make_data <- function(betas,N_CELLS,DATA_PER_CELL, M){
   d <- NULL
   obs <- NULL
-  sigma <- NULL
+  sigma <- array(0,dim=c(N_CELLS,2,2))
   for(r in 1:nrow(betas)) {
     b <- betas[r,]
     
@@ -29,7 +29,7 @@ make_data <- function(betas,N_CELLS,DATA_PER_CELL, M){
     d <- data.frame(cell=r, x1=m[,1], x2=m[,2], y= m%*%b+err)
     fits <- lm(y ~ x1 + x2, data = d);
     obs <- rbind(obs,fits$coefficients[2:3]);
-    sigma <- rbind(sigma, sqrt(diag(vcov(fits)))[2:3] ) #To get standard error of coefficients, http://stats.stackexchange.com/questions/26650/how-do-i-reference-a-regression-models-coefficients-standard-errors
+    sigma[r,,] <- vcov(fits)[2:3,2:3]; #covariance matrix for the coefficients
   }
   
   # Construct the data to send
@@ -59,6 +59,9 @@ betas_1circcov <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(3,0,0,3), nrow=2)
 # 2 orthogonal covs + noise (half noise)
 betas_2orthcov_noise <- rbind(mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))        
 
-data= make_data(betas_1poscov,N_CELLS,DATA_PER_CELL, 1);
-fit1cov_1poscov <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+data= make_data(betas_2orthcov_noise,N_CELLS,DATA_PER_CELL, 2);
+fit2cov_2orthcov_noise <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
 
+print(fit2cov_dACCdietselectionAccept, pars='mixture_weights')
+print(fit2cov_2orthcov_noise, pars='noise_weight')
+plot_beta_dif(fit2cov_2orthcov_noise, betas_2orthcov_noise)

@@ -5,7 +5,7 @@ data {
     int<lower=1> dim; // Number of dimensions
     int<lower=1> M; // number of mixture components 
     row_vector[dim] x[N_CELLS]; // Coefficient value for each sample on each dimension
-    vector[dim] sigma[N_CELLS]; //standard error for coefficients
+    cov_matrix[dim] sigma[N_CELLS]; //covariance matrix for coefficients
     
     vector[M] alpha_cov_mix; // dirichlet prior
     vector[2] alpha_noise_mix; //beta prior
@@ -54,10 +54,10 @@ model {
         increment_log_prob(log_sum_exp(logps));
         
         //p(observation | this cell is signal)
-        logp_signal <- multi_normal_log(x[n], betas[n], diag_matrix(sigma[n]));
+        logp_signal <- multi_normal_log(x[n], betas[n], sigma[n]);
         
         //p(observation | this cell is noise)
-        logp_noise <- multi_normal_log(x[n], zeros, diag_matrix(sigma[n]));        
+        logp_noise <- multi_normal_log(x[n], zeros, sigma[n]);        
         
         //increment prob by p(obs | noise, signal)
         increment_log_prob(log_sum_exp(log(1.0 - noise_weight) + logp_signal, log(noise_weight) + logp_noise));
