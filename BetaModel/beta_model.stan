@@ -38,7 +38,7 @@ model {
     mixture_weights ~ dirichlet(alpha_cov_mix);
     
     // P(noise_weight)
-    //noise_weight ~ beta(alpha_noise_mix[1],alpha_noise_mix[2]);
+    noise_weight ~ beta(alpha_noise_mix[1],alpha_noise_mix[2]);
     
     // P(cov), P(scaling factors)
     for (m in 1:M) {

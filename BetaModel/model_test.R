@@ -25,7 +25,7 @@ make_data <- function(betas,N_CELLS,DATA_PER_CELL, M){
     
     m <- matrix(runif(DATA_PER_CELL*2), ncol=2)
     
-    err <- rnorm(DATA_PER_CELL, 0.0, 0.10)
+    err <- rnorm(DATA_PER_CELL, 0.0, 0.20)
     d <- data.frame(cell=r, x1=m[,1], x2=m[,2], y= m%*%b+err)
     fits <- lm(y ~ x1 + x2, data = d);
     obs <- rbind(obs,fits$coefficients[2:3]);
@@ -36,7 +36,7 @@ make_data <- function(betas,N_CELLS,DATA_PER_CELL, M){
   data <- list(N_CELLS=N_CELLS, 
                M=M, 
                dim=2,
-               alpha_cov_mix=array(rep(.017,M),dim=M), # dirichlet prior. Need to declare as array to work with M=1
+               alpha_cov_mix=array(rep(1,M),dim=M), # dirichlet prior. Need to declare as array to work with M=1
                alpha_noise_mix=c(1,1), # Set a uniform prior for signal vs noise
                x = obs,
                sigma = sigma
@@ -59,9 +59,37 @@ betas_1circcov <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(3,0,0,3), nrow=2)
 # 2 orthogonal covs + noise (half noise)
 betas_2orthcov_noise <- rbind(mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))        
 
+data= make_data(betas_1poscov,N_CELLS,DATA_PER_CELL, 1);
+fit1cov_1poscov <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+
+data= make_data(betas_1poscov,N_CELLS,DATA_PER_CELL, 2);
+fit2cov_1poscov <- stan(model_code=modelcode, data=data, iter=2000, chains=4);
+
+data= make_data(betas_2orthcov,N_CELLS,DATA_PER_CELL, 2);
+fit2cov_2orthcov <- stan(model_code=modelcode, data=data, iter=2000, chains=4);
+
+data= make_data(betas_1poscov_noise,N_CELLS,DATA_PER_CELL, 1);
+fit1cov_1poscov_noise <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+
+data= make_data(betas_1circcov,N_CELLS,DATA_PER_CELL, 1);
+fit1cov_1circcove <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+
 data= make_data(betas_2orthcov_noise,N_CELLS,DATA_PER_CELL, 2);
 fit2cov_2orthcov_noise <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
 
-print(fit2cov_dACCdietselectionAccept, pars='mixture_weights')
-print(fit2cov_2orthcov_noise, pars='noise_weight')
-plot_beta_dif(fit2cov_2orthcov_noise, betas_2orthcov_noise)
+betas_1poscov50 <- mvrnorm(n=50, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
+betas_1poscov20 <- mvrnorm(n=20, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
+betas_1poscov10 <- mvrnorm(n=10, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
+betas_1poscov5 <- mvrnorm(n=5, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
+
+data= make_data(betas_1poscov50,50,DATA_PER_CELL, 1);
+fit1cov_1poscov50 <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+
+data= make_data(betas_1poscov20,20,DATA_PER_CELL, 1);
+fit1cov_1poscov20 <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+
+data= make_data(betas_1poscov10,10,DATA_PER_CELL, 1);
+fit1cov_1poscov10 <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+
+data= make_data(betas_1poscov5,5,DATA_PER_CELL, 1);
+fit1cov_1poscov5 <- stan(model_code=modelcode, data=data, iter=1000, chains=4);

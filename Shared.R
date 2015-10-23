@@ -55,19 +55,29 @@ plot_beta_dif <- function(myfit,given_betas){
   abline(0,1)
 }
 
-hist_cov_angle <- function(myfit,ind1,ind2){
-  #requires the fit, and the covariance matrix indices
+hist_cov_angle <- function(myfit,minSize){
+  #requires the fit, and the minimum size of the covariance matrices
   covs = extract(myfit,pars='covs', permuted='false');
+  mix_weight = extract(myfit,pars='mixture_weights', permuted='false');
   
-  num_iter = dim(covs)[1];
+  num_covs = dim(mix_weight)[3]
+  num_iter = dim(mix_weight)[1]
+  num_chain = dim(mix_weight)[2]
   
-  theta = numeric(length = num_iter);
+  dim(mix_weight) <- c(num_iter*num_chain,num_covs) 
+  dim(covs) <- c(num_iter*num_chain,num_covs*4) 
   
-  for(i in 1:num_iter){
+  ind1 <- which(mix_weight[,1] < .5 & mix_weight[,1] > minSize)
+  ind2 <- which(mix_weight[,2] < .5 & mix_weight[,2] > minSize)
+
+  ind <- c(ind1,ind2)
+  
+  theta = numeric(length = length(ind));
+  for(i in 1:length(theta)){
     # Get the eigenvectors for the covariance matrices
-      cov1 = matrix(covs[i,1,seq(ind1,length(covs[i,1,]),by=2)],nrow=2);
+      cov1 = matrix(covs[ind[i],seq(1,dim(covs)[2],by=2)], nrow=2);
       eig1 = eigen(cov1)$vectors[,1];
-      cov2 = matrix(covs[i,1,seq(ind2,length(covs[i,1,]),by=2)],nrow=2);
+      cov2 = matrix(covs[ind[i],seq(2,dim(covs)[2],by=2)], nrow=2);
       eig2 = eigen(cov2)$vectors[,1];
       
       #Calculate angle (gives angle between -180 and +180)
@@ -76,16 +86,23 @@ hist_cov_angle <- function(myfit,ind1,ind2){
  }
   hist(theta)
   
-  sorted_theta = theta[order(theta)];
+  n = length(theta)
+  n97 = round(n*.975)
+  n2 = round(n*.025)
+  high_int= sort(theta, TRUE)[n97];
+  low_int = sort(theta, TRUE)[n2];
   
-  #print intervals and stuff
+  lines( c(high_int,high_int), c(0,max(list_histo$counts)/2), col = "green", lwd = 5)
+  text(high_int, max(list_histo$counts)/2 + 10 , toString(round(high_int, 2)), font=2)
+  lines( c(low_int,low_int), c(0,max(list_histo$counts)/2), col = "green", lwd = 5)
+  text(low_int, max(list_histo$counts/2) + 10 , toString(round(low_int, 2)), font=2)
 }
 
 hist_mix_weight <- function(myfit){
   mix_weight = extract(myfit,pars='mixture_weights', permuted='false');
   #hist(mix_weight[mix_weight > .9],breaks=seq(from=.9,to=1,by=.005), col='blue',cex.lab=2, cex.main=2, cex.axis=2, font.lab=2, font.main=2, font.axis=2)
-  list_histo=hist(mix_weight,breaks=seq(from=0,to=1,by=.05), col='blue',cex.lab=2, cex.main=2, cex.axis=2, font.lab=2, font.main=2, font.axis=2)
-  x = mix_weight;
+  list_histo=hist(mix_weight[mix_weight < .5],breaks=seq(from=0,to=0.5,by=.01), col='blue',cex.lab=2, cex.main=2, cex.axis=2, font.lab=2, font.main=2, font.axis=2)
+  x = mix_weight[mix_weight < .5];
   mx = mean(x);
   n = length(x);
   n97 = round(n*.975)
