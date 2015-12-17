@@ -63,3 +63,27 @@ model {
         increment_log_prob(log_sum_exp(log(1.0 - noise_weight) + logp_signal, log(noise_weight) + logp_noise));
     }    
 }
+
+generated quantities {
+    vector[N_CELLS] log_lik;
+    real logp_noise; //for saving log prob of obs coming from noise
+    real logp_signal; //for saving log prob of obs coming from signal
+    real logps[M]; // for saving log probs
+
+    for (n in 1:N_CELLS) {
+        
+        //p(betas | cov)
+        for (m in 1:M) {
+            logps[m] <- log(mixture_weights[m]) + multi_normal_log(betas[n], zeros, diag_matrix(scale[m])*covs[m]*diag_matrix(scale[m]));
+        }
+        
+        //p(observation | this cell is signal)
+        logp_signal <- multi_normal_log(x[n], betas[n], sigma[n]);
+        
+        //p(observation | this cell is noise)
+        logp_noise <- multi_normal_log(x[n], zeros, sigma[n]);        
+        
+        //increment prob by p(obs | noise, signal)
+        log_lik[n] <- log_sum_exp(log(1.0 - noise_weight) + logp_signal, log(noise_weight) + logp_noise) + log_sum_exp(logps);
+    }    
+}

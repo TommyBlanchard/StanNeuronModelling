@@ -60,36 +60,40 @@ betas_1circcov <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(3,0,0,3), nrow=2)
 betas_2orthcov_noise <- rbind(mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))        
 
 data= make_data(betas_1poscov,N_CELLS,DATA_PER_CELL, 1);
-fit1cov_1poscov <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+test <- stan(model_code=modelcode, data=data, iter=10, chains=1);
+
+data= make_data(betas_1poscov,N_CELLS,DATA_PER_CELL, 1);
+fit1cov_1poscov <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
 
 data= make_data(betas_1poscov,N_CELLS,DATA_PER_CELL, 2);
-fit2cov_1poscov <- stan(model_code=modelcode, data=data, iter=2000, chains=4);
+fit2cov_1poscov <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
+
+data= make_data(betas_1poscov,N_CELLS,DATA_PER_CELL, 3);
+fit3cov_1poscov <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
+
+data= make_data(betas_2orthcov,N_CELLS,DATA_PER_CELL, 1);
+fit1cov_2orthcov <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
 
 data= make_data(betas_2orthcov,N_CELLS,DATA_PER_CELL, 2);
-fit2cov_2orthcov <- stan(model_code=modelcode, data=data, iter=2000, chains=4);
+fit2cov_2orthcov <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
+
+data= make_data(betas_2orthcov,N_CELLS,DATA_PER_CELL, 3);
+fit3cov_2orthcov <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
 
 data= make_data(betas_1poscov_noise,N_CELLS,DATA_PER_CELL, 1);
-fit1cov_1poscov_noise <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+fit1cov_1poscov_noise <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
 
-data= make_data(betas_1circcov,N_CELLS,DATA_PER_CELL, 1);
-fit1cov_1circcove <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+data= make_data(betas_1poscov_noise,N_CELLS,DATA_PER_CELL, 2);
+fit2cov_1poscov_noise <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
+
+data= make_data(betas_1poscov_noise,N_CELLS,DATA_PER_CELL, 3);
+fit3cov_1poscov_noise <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
+
+data= make_data(betas_2orthcov_noise,N_CELLS,DATA_PER_CELL, 1);
+fit1cov_2orthcov_noise <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
 
 data= make_data(betas_2orthcov_noise,N_CELLS,DATA_PER_CELL, 2);
-fit2cov_2orthcov_noise <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+fit2cov_2orthcov_noise <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
 
-betas_1poscov50 <- mvrnorm(n=50, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
-betas_1poscov20 <- mvrnorm(n=20, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
-betas_1poscov10 <- mvrnorm(n=10, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
-betas_1poscov5 <- mvrnorm(n=5, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2))
-
-data= make_data(betas_1poscov50,50,DATA_PER_CELL, 1);
-fit1cov_1poscov50 <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
-
-data= make_data(betas_1poscov20,20,DATA_PER_CELL, 1);
-fit1cov_1poscov20 <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
-
-data= make_data(betas_1poscov10,10,DATA_PER_CELL, 1);
-fit1cov_1poscov10 <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
-
-data= make_data(betas_1poscov5,5,DATA_PER_CELL, 1);
-fit1cov_1poscov5 <- stan(model_code=modelcode, data=data, iter=1000, chains=4);
+data= make_data(betas_2orthcov_noise,N_CELLS,DATA_PER_CELL, 3);
+fit3cov_2orthcov_noise <- stan(model_code=modelcode, data=data, iter=10000, chains=5);
