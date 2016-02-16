@@ -24,7 +24,7 @@ parameters {
    simplex[M] mixture_weights;
    
    vector<lower=0>[dim] noise_scale; // Prior for scale (cauchy)
-   vector<lower=0>[dim] noise_sd; // Prior for scale (cauchy)
+   real<lower=0>        noise_sd; // Prior for scale (cauchy)
    
    vector<lower=0>[dim] xaligned_scale; // Prior for scale (cauchy)
    cov_matrix[dim]      xaligned_cov;
@@ -45,11 +45,13 @@ model {
     noise_scale    ~ cauchy(0,1); // TODO: MAYBE THE SCALE SHOULD BE DRAWN FROM A WISHART?
 	noise_sd       ~ cauchy(0,1);
     
-    xaligned_scale ~ cauchy(0,1);
-	xaligned_cov   ~ inv_wishart(dim, diag_matrix(xWishartPrior));
-	
-    yaligned_scale ~ cauchy(0,1);
-	yaligned_cov   ~ inv_wishart(dim, diag_matrix(yWishartPrior));
+    xaligned_scale  ~ cauchy(0,1);
+    xaligned_xscale ~ normal(0,xaligned_scale);
+    xaligned_yscale ~ nromal(0,xaligned_scale * 0.01);
+    
+    yaligned_scale  ~ cauchy(0,1);
+    yaligned_xscale ~ normal(0,yaligned_scale);
+    yaligned_yscale ~ nromal(0,yaligned_scale * 0.01);
 	
 	free_scale     ~ cauchy(0,1);
 	free_cov       ~ inv_wishart(dim, identity);
@@ -57,7 +59,7 @@ model {
     for (n in 1:N_CELLS) {
         
 		// probability of the betas under each component
-		logps[1] <- log(mixture_weights[1]) + multi_normal_log(X[n], zeros, diag_matrix(noise_scale)*diag_matrix(noise_sd)*diag_matrix(noise_scale));     
+		logps[1] <- log(mixture_weights[1]) + multi_normal_log(X[n], zeros, diag_matrix(noise_scale)*diag_matrix(noise_sd, noise_sd)*diag_matrix(noise_scale));     
         
 		logps[2] <- log(mixture_weights[2]) + multi_normal_log(X[n], zeros, diag_matrix(xaligned_scale)*xaligned_cov*diag_matrix(xaligned_scale));
         
