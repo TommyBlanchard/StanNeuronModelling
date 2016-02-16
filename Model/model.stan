@@ -50,7 +50,8 @@ model {
     
     free_scale  ~ cauchy(0,1);
     free_cov    ~ lkj_corr(1);
-        
+    print(free_cov);
+    
     for (n in 1:N_CELLS) {
         
         // compute the probability of the betas under each component in logps
@@ -62,7 +63,7 @@ model {
         logps[2] <- log(mixture_weights[2]) + multi_normal_log(X[n], zeros, diag_matrix(xaligned_cov) + sigma[n]);
         
         // y-aligned
-        logps[3] <-  log(mixture_weights[3]) + multi_normal_log(X[n], zeros, diag_matrix(yaligned_cov) + sigma[n]);
+        logps[3] <- log(mixture_weights[3]) + multi_normal_log(X[n], zeros, diag_matrix(yaligned_cov) + sigma[n]);
         
         // free
         logps[4] <- log(mixture_weights[4]) + multi_normal_log(X[n], zeros, diag_matrix(free_scale)*free_cov*diag_matrix(free_scale) + sigma[n]);

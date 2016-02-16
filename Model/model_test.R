@@ -15,7 +15,7 @@ N_CELLS <- 100
 DATA_PER_CELL <- 200
 M <- 4;
 ITER <- 1000; # How many to run for
-CHAINS <- 4;
+CHAINS <- 1;
 
 set.seed(100)
 
@@ -64,8 +64,8 @@ betas_2orthcov_noise <- rbind(mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,1
 # fit <- stan(model_code=modelcode, data=data, iter=ITER, chains=CHAINS);
 
 
-data= make_data(betas_1poscov,N_CELLS,DATA_PER_CELL);
-fit1cov_1poscov <- stan(model_code=modelcode, data=data, iter=ITER, chains=CHAINS);
+data= make_data(betas_1poscov_noise,N_CELLS,DATA_PER_CELL);
+fit <- stan(model_code=modelcode, data=data, iter=ITER, chains=CHAINS);
 
 # data= make_data(betas_2orthcov,N_CELLS,DATA_PER_CELL);
 # fit1cov_2orthcov <- stan(model_code=modelcode, data=data, iter=ITER, chains=CHAINS);
