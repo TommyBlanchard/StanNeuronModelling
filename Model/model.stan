@@ -3,7 +3,7 @@ data {
     int<lower=1> dim; // Number of dimensions
     int<lower=1> M; // number of mixture components -- 4 here
     row_vector[dim] X[N_CELLS]; // Coefficient value for each sample on each dimension
-     cov_matrix[dim] sigma[N_CELLS]; //
+    cov_matrix[dim] sigma[N_CELLS]; //
      
     vector[M] alpha_cov_mix; // dirichlet prior
 }
@@ -21,31 +21,23 @@ parameters {
    
    simplex[M] mixture_weights;
    
-   vector<lower=0>[dim] xaligned_sd; 
-   vector<lower=0>[dim] yaligned_sd; 
+   real<lower=0> xaligned_sd; 
+   real<lower=0> yaligned_sd; 
    
    vector<lower=0>[dim] free_scale; // Prior for scale (cauchy)
-   corr_matrix[dim]           free_cov;
+   corr_matrix[dim]     free_cov;
    
 }
     
-    transformed parameters {
-
-        vector<lower=0>[dim] xaligned_cov; 
-
-          vector<lower=0>[dim] yaligned_cov;
-
+transformed parameters {
+    vector<lower=0>[dim] xaligned_cov; 
+    vector<lower=0>[dim] yaligned_cov;
 
     xaligned_cov[1] <- xaligned_sd;
-
     xaligned_cov[2] <- 0;
 
-
-    yaligned_cov1] <- yaligned_sd;
-
+    yaligned_cov[1] <- yaligned_sd;
     yaligned_cov[2] <- 0;
-
-
 }
     
 model {    
@@ -56,8 +48,8 @@ model {
     xaligned_sd ~ cauchy(0,1);
     yaligned_sd ~ cauchy(0,1);
     
-    free_scale     ~ cauchy(0,1);
-    free_cov        ~ lkj_corr(2);
+    free_scale  ~ cauchy(0,1);
+    free_cov    ~ lkj_corr(2);
         
     for (n in 1:N_CELLS) {
         
