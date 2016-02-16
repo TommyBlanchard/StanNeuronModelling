@@ -36,8 +36,8 @@ transformed parameters {
     xaligned_cov[1] <- xaligned_sd;
     xaligned_cov[2] <- 0;
 
-    yaligned_cov[1] <- yaligned_sd;
-    yaligned_cov[2] <- 0;
+    yaligned_cov[1] <- 0;
+    yaligned_cov[2] <- yaligned_sd;
 }
     
 model {    
@@ -49,20 +49,20 @@ model {
     yaligned_sd ~ cauchy(0,1);
     
     free_scale  ~ cauchy(0,1);
-    free_cov    ~ lkj_corr(2);
+    free_cov    ~ lkj_corr(1);
         
     for (n in 1:N_CELLS) {
         
         // compute the probability of the betas under each component in logps
         
         // noise
-        logps[1] <- multi_normal_log(X[n], zeros, sigma[n]); 
+        logps[1] <- log(mixture_weights[1]) + multi_normal_log(X[n], zeros, sigma[n]); 
         
         // x-aligned
         logps[2] <- log(mixture_weights[2]) + multi_normal_log(X[n], zeros, diag_matrix(xaligned_cov) + sigma[n]);
         
         // y-aligned
-        logps[3] <-  log(mixture_weights[2]) + multi_normal_log(X[n], zeros, diag_matrix(yaligned_cov) + sigma[n]);
+        logps[3] <-  log(mixture_weights[3]) + multi_normal_log(X[n], zeros, diag_matrix(yaligned_cov) + sigma[n]);
         
         // free
         logps[4] <- log(mixture_weights[4]) + multi_normal_log(X[n], zeros, diag_matrix(free_scale)*free_cov*diag_matrix(free_scale) + sigma[n]);
