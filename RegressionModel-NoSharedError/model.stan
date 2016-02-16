@@ -74,10 +74,12 @@ model {
         // well this comes from marginalizing over whether or not each cell is noise (meaning we must take the product of its responses)
         logp_noise_neuron <- 0;
         logp_beta_neuron <- 0;
+        
         //This "segment" method is the suggested way of efficiently vectorizing in a "ragged array" setup like we have. See Stan Manual pg 135
         logp_beta_neuron <- normal_log(segment(y, pos, s[n]), beta0[n] + beta[n,1]*segment(x1, pos, s[n]) + beta[n,2]*segment(x2, pos, s[n]), noise[n]);
         logp_noise_neuron <- normal_log(segment(y, pos, s[n]), 0, noise[n]);
         increment_log_prob(log_sum_exp(log(1.0 - noise_weight) + logp_beta_neuron, log(noise_weight) + logp_noise_neuron));
+        
         //segment(y, pos, s[n]) ~ normal( beta0[n] + beta[n,1]*segment(x1, pos, s[n]) + beta[n,2]*segment(x2, pos, s[n]), noise[n]);
         pos <- pos + s[n];
     }
