@@ -7,15 +7,13 @@ source("../Shared.R")
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores()) 
 
-options(width=Sys.getenv("COLUMNS"))  # fix the number of columns
-
 modelcode <- paste(readLines('model.stan'), collapse = '\n')
 
 N_CELLS <- 100
 DATA_PER_CELL <- 200
-M <- 4;
+M <- 2;
 ITER <- 1000; # How many to run for
-CHAINS <- 4;
+CHAINS <- 1;
 
 set.seed(100)
 
@@ -58,14 +56,21 @@ betas_1poscov_noise <- rbind(mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(1,1.
 betas_1circcov <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(3,0,0,3), nrow=2))
 # 2 orthogonal covs + noise (half noise)
 betas_2orthcov_noise <- rbind(mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,1.5, 1.5,3), nrow=2)),mvrnorm(n=N_CELLS/4, mu=c(0,0), Sigma=matrix(c(1,-1.5, -1.5,3), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0,0,0), nrow=2)))        
+# xaligned
+betas_xaligned <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(3,0, 0,0), nrow=2))        
+# yaligned
+betas_yaligned <- mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(0,0, 0,3), nrow=2))        
+#x & y aligned
+betas_xyaligned <- rbind(mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(3,0, 0,0), nrow=2)),mvrnorm(n=N_CELLS/2, mu=c(0,0), Sigma=matrix(c(0,0, 0,3), nrow=2)))     
+     
 
 
 # data= make_data(mvrnorm(n=N_CELLS, mu=c(0,0), Sigma=matrix(c(0.1,0.1,0.1,.1), nrow=2)), N_CELLS, DATA_PER_CELL);
 # fit <- stan(model_code=modelcode, data=data, iter=ITER, chains=CHAINS);
 
 
-data= make_data(betas_1poscov,N_CELLS,DATA_PER_CELL);
-fit1cov_1poscov <- stan(model_code=modelcode, data=data, iter=ITER, chains=CHAINS);
+data= make_data(betas_1poscov_noise,N_CELLS,DATA_PER_CELL);
+fit <- stan(model_code=modelcode, data=data, iter=ITER, chains=CHAINS);
 
 # data= make_data(betas_2orthcov,N_CELLS,DATA_PER_CELL);
 # fit1cov_2orthcov <- stan(model_code=modelcode, data=data, iter=ITER, chains=CHAINS);
