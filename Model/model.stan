@@ -55,8 +55,14 @@ model {
     yaligned_sd ~ cauchy(0,1);
     
     free_scale  ~ cauchy(0,1);
+<<<<<<< HEAD
     free_cor    ~ lkj_corr(1);
         
+=======
+    free_cov    ~ lkj_corr(1);
+    print(free_cov);
+    
+>>>>>>> 15c6318b43e1a241a58d01bea747c0f13e5add5c
     for (n in 1:N_CELLS) {
         
         // compute the probability of the betas under each component in logps
@@ -68,10 +74,14 @@ model {
         logpaxes[1] <- log(axes_mix_weight) + multi_normal_log(X[n], zeros, diag_matrix(xaligned_cov) + sigma[n]);
         
         // y-aligned
+<<<<<<< HEAD
         logpaxes[2] <-  log(1 - axes_mix_weight) + multi_normal_log(X[n], zeros, diag_matrix(yaligned_cov) + sigma[n]);
         
         //xy-aligned
         logpsignal[1] <- log(mix_weights[1]) + log_sum_exp(logpaxes);
+=======
+        logps[3] <- log(mixture_weights[3]) + multi_normal_log(X[n], zeros, diag_matrix(yaligned_cov) + sigma[n]);
+>>>>>>> 15c6318b43e1a241a58d01bea747c0f13e5add5c
         
         // free
         logpsignal[2] <- log(mix_weights[2]) + multi_normal_log(X[n], zeros, free_cov + sigma[n]);
