@@ -1,0 +1,9 @@
+The scripts here are specifically for fitting the Stan model to the Hayden lab data (data will be available online... eventually)
+
+getNeuroRegressors.R gets the data (variables and firing rates) for all of the data sets that will be run, runs the regression, and saves the result in regdata.RData
+
+FitRegressionData.R takes the regression coefficients spit out by getNeuroRegressors.R and fits them with the model. NOTE: This takes a long time. It saves the resulting Stan fits to 'fivekFits.RData'
+
+makeTable.R takes the fits from FitRegressionData.R and makes a table of the models' weights for each set and saves it to weightsTable.csv
+
+make_Figs.R takes the fits and the table and makes the paper figures
