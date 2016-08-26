@@ -1,5 +1,6 @@
 library(rstan)
 library(plyr)
+library(coda)
 
 dataDir = "../singleunitdata/";
 
@@ -35,7 +36,6 @@ for (i in 1:length(fits)) {
   table <- rbind(table,makeTableRow(fits[[i]]));
 }
 table <- cbind(levels(regdata$setName),table)
-table[,1] = levels(regdata$setName)[c(1:6, 8, 10:14, 16:23)] #Took out 3 datasets that weren't converging as quick as the rest, temporary hack to get rid of those
 colnames(table) <- c("set name", "median mixed-tuning signal weight", "low mixed-tuning signal weight", "high mixed-tuning signal weight", "median pure weight", "low pure weight", "high pure weight", "median noise weight", "low noise weight", "high noise weight",  "median correlation", "low correlation", "high correlation", "naive correlation", "low naive correlation", "high naive correlation")
 
 write.csv(table,paste(dataDir, 'weightsTable.csv', sep = ""))
@@ -48,6 +48,6 @@ rhats = NULL
 for (i in 1:length(fits)) {
   rhats <- rbind(rhats,Rhat(fits[[i]][[8]]));
 }
-max(rhats[,c(1:8,10:11,13,16:20)]) #Max of the model parameters (excludign parameters that are by definition going to be nan, like the diagonal in correlation matrix)
+max(rhats[,c(1:8,10:11,13,16:20)]) #Max of the model parameters (excluding parameters that are by definition going to be nan, like the diagonal in correlation matrix)
 
 

@@ -219,36 +219,34 @@ dev.off()
 #a) mixed-weight proporiton of signal weight
 #b) pure-weight as proportion of total weight
 d <- read.csv(paste(dataDir, 'weightsTable.csv', sep = ""), header=T)
-
-p <- ggplot(d, aes(y=X, x=median.mixed.tuning.signal.weight, xmin=low.mixed.tuning.signal.weight, xmax=high.mixed.tuning.signal.weight)) + 
+p1 <- ggplot(d, aes(y=X, x=median.mixed.tuning.signal.weight, xmin=low.mixed.tuning.signal.weight, xmax=high.mixed.tuning.signal.weight)) + 
   geom_point() + 
   geom_errorbarh() +
   theme_bw() +
   xlim(0,1) +
   labs(x = "Mixed-tuning weight as proportion of signal weight", y='Data set')+
-  scale_y_continuous(breaks = 1:20)
-ggsave(paste(dataDir, 'figures/7a.pdf', sep = ""), width=10)
+  scale_y_continuous(breaks = 1:10*2)
 
-p <- ggplot(d, aes(y=X, x=median.pure.weight, xmin=low.pure.weight, xmax=high.pure.weight)) + 
+p2 <- ggplot(d, aes(y=X, x=median.pure.weight, xmin=low.pure.weight, xmax=high.pure.weight)) + 
   geom_point() + 
   geom_errorbarh() +
   theme_bw() +
   xlim(0,1) +
   labs(x = "Pure-tuning weight as proportion of total weight", y='Data set')+
-  scale_y_continuous(breaks = 1:20)
-ggsave(paste(dataDir, 'figures/7b.pdf', sep = ""), width=10)
+  scale_y_continuous(breaks = 1:10*2)
 
-p <- ggplot(d, aes(y=X, x=median.noise.weight, xmin=low.noise.weight, xmax=high.noise.weight)) + 
+p3 <- ggplot(d, aes(y=X, x=median.noise.weight, xmin=low.noise.weight, xmax=high.noise.weight)) + 
   geom_point() + 
   geom_errorbarh() +
   theme_bw() +
   xlim(0,1) +
   labs(x = "No-tuning weight as proportion of total weight", y='Data set')+
-  scale_y_continuous(breaks = 1:20)
-ggsave(paste(dataDir, 'figures/7c.pdf', sep = ""), width=10)
+  scale_y_continuous(breaks = 1:10*2)
 
+pdf(paste(dataDir, 'figures/7.pdf',sep=''), width=10)
+multiplot(p1,p2,p3)
+dev.off()
 
-nameTable[1,] = c('Ventral Striatum', 'Gambling', 'Strait, Sleezer, & Hayden, 2015', 'Reward size and Probability')
 #Figure 8/SUPPLEMENT?
 #a correlation vs naive correlation
 #b correlation difference for correlation vs naive correlation on significant sets
