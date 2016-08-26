@@ -1,6 +1,6 @@
 library(plyr)
 
-dataDir = "/StanNeuronModelling/singleunitdata/";
+dataDir = "../singleunitdata/";
 
 runReg = function(x) {
   tryCatch({

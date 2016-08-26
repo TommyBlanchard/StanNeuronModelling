@@ -1,3 +1,10 @@
+library(rstan)
+library(plyr)
+
+dataDir = "../singleunitdata/";
+
+load(file=paste(dataDir, 'fiveKfits.RData', sep = ""))
+
 makeTableRow <-function(fit){
   pars = extract(fit[[8]])
   free_weight = pars$mix_weights[,2]
@@ -41,4 +48,6 @@ rhats = NULL
 for (i in 1:length(fits)) {
   rhats <- rbind(rhats,Rhat(fits[[i]][[8]]));
 }
+max(rhats[,c(1:8,10:11,13,16:20)]) #Max of the model parameters (excludign parameters that are by definition going to be nan, like the diagonal in correlation matrix)
+
 

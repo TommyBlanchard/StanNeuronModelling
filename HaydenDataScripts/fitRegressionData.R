@@ -3,7 +3,7 @@ library(MASS) # For mvrnorm
 library(plyr)
 library(coda)
 
-dataDir = "/StanNeuronModelling/singleunitdata/";
+dataDir = "../singleunitdata/";
 load(file=paste(dataDir, 'regdata.RData', sep = ""))
 
 rstan_options(auto_write = TRUE)
@@ -27,7 +27,7 @@ fitStanModel <- function(dat){
   set.seed(100)
   ITER <- 5000; #1000 iterations is probably the lower bound of what you should do - do higher if rhat is not below 1.1!
   CHAINS <- 5;
-  modelcode <- paste(readLines('model.stan'), collapse = '\n')
+  modelcode <- paste(readLines('../Model/model.stan'), collapse = '\n')
   
   alpha = 0.5; #alpha for dirichlet prior
   

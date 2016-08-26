@@ -1,6 +1,10 @@
+library(rstan)
+library(MASS) # For mvrnorm
+library(plyr)
+library(coda)
 library(gridExtra)
-
-dataDir = "/StanNeuronModelling/singleunitdata/";
+source("../Model/Visualizations.R")
+dataDir = "../singleunitdata/";
 
 #Figure 1 old methods
 #a) beta x beta plot
