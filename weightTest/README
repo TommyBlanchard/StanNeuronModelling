@@ -1,0 +1,3 @@
+plotWeightTest.R creates figure 5 for the paper.
+
+Note that the data (which is included) was generated using submitTest.sh, which calls test_noise_increase.R using Slurm. 
