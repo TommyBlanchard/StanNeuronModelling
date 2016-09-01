@@ -201,7 +201,7 @@ dev.off()
 #a) mixed-selective with noise
 #b) pure-tuned with noise
 #c) mix of all three
-
+#THE CODE TO GENERATE THIS FIGURE IS IN weightTest
 ## FIGURE 6
 
 load(paste(dataDir, 'fiveKfits.RData', sep = ""))
