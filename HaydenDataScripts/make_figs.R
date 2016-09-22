@@ -156,11 +156,14 @@ dev.off()
 #Figure 3 posteriors for models in fig2
 
 pdf(paste(dataDir, 'figures/3.pdf',sep=''))
-par(mfrow=c(2,3), mar=c(2,2.5,2,1))
+par(mfrow=c(4,2), mar=c(2,2.5,2,1))
+
 hist_mix_weight(fit1)
+hist_corr(fit1)
 hist_axes_weight(fit1)
 hist_noise_weight(fit1)
 hist_mix_weight(fit2)
+hist_corr(fit2)
 hist_axes_weight(fit2)
 hist_noise_weight(fit2)
 dev.off()

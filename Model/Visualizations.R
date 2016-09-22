@@ -188,7 +188,6 @@ hist_mix_weight <- function(myfit){
   x = pars$mix_weights[,2];
   list_histo = hist(x,breaks=seq(from=0,to=1,by=.05), plot=FALSE)
   plot_hist(x,list_histo,"Mixed-tuning signal weight")
-  plot_hist(x,list_histo,"Posterior mixed-tuning signal weight")
 }
 
 hist_corr <- function(myfit){
@@ -196,7 +195,6 @@ hist_corr <- function(myfit){
   x = pars$free_cor[,1,2]
   list_histo = hist(x,plot=FALSE,breaks=seq(from=-1,to=1,by=.1))
   plot_hist(x,list_histo,"Correlation")
-  plot_hist(x,list_histo,"Posterior correlation")
 }
 
 free_scale_ratio <- function(myfit){
@@ -211,7 +209,6 @@ free_scale_ratio <- function(myfit){
   x = array(scale_difference_ratio);
   list_histo = hist(scale_difference_ratio, breaks=seq(from=-1,to=1,by=.1), plot=FALSE)
   plot_hist(x,list_histo,"Mixed-tuning scale difference ratio")
-  plot_hist(x,list_histo,"Posterior mixed-tuning scale difference ratio")
 }
 
 axes_scale_ratio <- function(myfit){
@@ -226,7 +223,6 @@ axes_scale_ratio <- function(myfit){
   x = array(scale_difference_ratio);
   list_histo = hist(scale_difference_ratio, breaks=seq(from=-1,to=1,by=.1), plot=FALSE)
   plot_hist(x,list_histo,"Pure-tuning scale difference ratio")
-  plot_hist(x,list_histo,"Posterior pure-tuning scale difference ratio")
 }
 
 hist_axes_weight <- function(myfit){
@@ -234,7 +230,6 @@ hist_axes_weight <- function(myfit){
   x = array(pars$axes_mix_weight);
   list_histo = hist(x,plot=FALSE,breaks=seq(from=0,to=1,by=.05))
   plot_hist(x,list_histo,"Pure-tuning variable 1 weight")
-  plot_hist(x,list_histo,"Posterior pure-tuning variable 1 weight")
 }
 
 hist_noise_weight <- function(myfit){
@@ -242,7 +237,6 @@ hist_noise_weight <- function(myfit){
   x = array(pars$noise_weight);
   list_histo = hist(x,plot=FALSE,breaks=seq(from=0,to=1,by=.05))
   plot_hist(x,list_histo,"No-tuning weight")
-  plot_hist(x,list_histo,"Posterior noise weight")
 }
 
 hist_free_scalex <- function(myfit){
@@ -250,7 +244,6 @@ hist_free_scalex <- function(myfit){
   x = array(pars$free_scale[,1]);
   list_histo = hist(remove_outliers(x),plot=FALSE)
   plot_hist(x,list_histo,"Mixed-tuning x scale")
-  plot_hist(x,list_histo,"Posterior mixed-tuning x scale")
 }
 
 hist_free_scaley <- function(myfit){
@@ -258,7 +251,6 @@ hist_free_scaley <- function(myfit){
   x = array(pars$free_scale[,2]);
   list_histo = hist(remove_outliers(x),plot=FALSE)
   plot_hist(x,list_histo,"Mixed-tuning y scale")
-  plot_hist(x,list_histo,"Posterior mixed-tuning y scale")
 }
 
 hist_axes_scalex <- function(myfit){
@@ -266,7 +258,6 @@ hist_axes_scalex <- function(myfit){
   x = array(pars$xaligned_sd);
   list_histo = hist(remove_outliers(x),plot=FALSE)
   plot_hist(x,list_histo,"Pure-tuning x scale")
-  plot_hist(x,list_histo,"Posterior pure-tuning x scale")
 }
 
 hist_axes_scaley <- function(myfit){
@@ -276,9 +267,9 @@ hist_axes_scaley <- function(myfit){
   plot_hist(x,list_histo,"Pure-tuning y scale")
 }
 
-plot_hist <- function(x,histo,xlab){
-  plot_hist(x,list_histo,"Posterior pure-tuning y scale")
-}
+#plot_hist <- function(x,histo,xlab){
+#  plot_hist(x,list_histo,"Posterior pure-tuning y scale")
+#}
 
 plot_hist <- function(x,histo,main){
   mx = median(x);
@@ -286,8 +277,7 @@ plot_hist <- function(x,histo,main){
   low = HPDinterval(as.mcmc(x), prob=0.95)[2];
   histo$counts=histo$counts/sum(histo$counts)
   plot(histo, col='grey',cex.lab=1.5, cex.main=1.5, cex.axis=1.5, font.lab=2, font.main=2, font.axis=1.5, border="#777777",main=NULL,xlab=NULL,ylab=NULL)
-  title(ylab="Probability density", xlab=xlab)
-  
+
   title(main=main, ylab="Probability density")
   lines( c(mx,mx), c(0,par('usr')[4]*.65), col = "red", lwd = 2)
   text(mx, par('usr')[4]*.75, paste(toString(round(mx, 2))), font=2)
