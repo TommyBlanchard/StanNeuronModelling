@@ -10,3 +10,5 @@ Model code and general-purpose scripts are in the 'Model' folder. It also contai
 Code used specifically for the Hayden Lab data sets is in HaydenDataScripts.
 
 Expect updates to this repo to make it more user-friendly as the paper makes its way through the publication process
+
+A guide on creating and evaluating a Bayesian model using Stan is available [here](https://my.vanderbilt.edu/jeffannis/files/2016/06/AnnisMillerPalmeri2016.pdf)
