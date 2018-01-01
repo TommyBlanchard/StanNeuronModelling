@@ -61,22 +61,22 @@ model {
         // compute the probability of the betas under each component in logps
         
         // noise
-        logpnoise = multi_student_t_log(X[n], 50, zeros, sigma[n]); 
+        logpnoise = multi_student_t_lpdf(X[n] | 50, zeros, sigma[n]); 
         
         // x-aligned
-        logpaxes[1] = log(axes_mix_weight) + multi_student_t_log(X[n], 50, zeros, diag_matrix(xaligned_cov) + sigma[n]);
+        logpaxes[1] = log(axes_mix_weight) + multi_student_t_lpdf(X[n] | 50, zeros, diag_matrix(xaligned_cov) + sigma[n]);
         
         // y-aligned
-        logpaxes[2] =  log(1 - axes_mix_weight) + multi_student_t_log(X[n], 50, zeros, diag_matrix(yaligned_cov) + sigma[n]);
+        logpaxes[2] =  log(1 - axes_mix_weight) + multi_student_t_lpdf(X[n] | 50, zeros, diag_matrix(yaligned_cov) + sigma[n]);
         
         //xy-aligned
         logpsignal[1] = log(mix_weights[1]) + log_sum_exp(logpaxes);
         
         // free
-        logpsignal[2] = log(mix_weights[2]) + multi_student_t_log(X[n], 50, zeros, free_cov + sigma[n]);
+        logpsignal[2] = log(mix_weights[2]) + multi_student_t_lpdf(X[n] | 50, zeros, free_cov + sigma[n]);
         
         // increment by sum of probabilities, marginalizing over generating models
-        increment_log_prob(log_sum_exp(log(1 - noise_weight) + log_sum_exp(logpsignal), log(noise_weight) + logpnoise));
+        target += log_sum_exp(log(1 - noise_weight) + log_sum_exp(logpsignal), log(noise_weight) + logpnoise);
     }    
 }
 
@@ -89,16 +89,16 @@ generated quantities {
     
     for (n in 1:N_CELLS) {        
         // noise
-        logpnoise[n] = log(noise_weight) + multi_student_t_log(X[n], 50, zeros, sigma[n]); 
+        logpnoise[n] = log(noise_weight) + multi_student_t_lpdf(X[n] | 50, zeros, sigma[n]); 
         
         // x-aligned
-        logpxaxis[n] = log(1 - noise_weight) + log(mix_weights[1]) + log(axes_mix_weight) + multi_student_t_log(X[n], 50, zeros, diag_matrix(xaligned_cov) + sigma[n]);
+        logpxaxis[n] = log(1 - noise_weight) + log(mix_weights[1]) + log(axes_mix_weight) + multi_student_t_lpdf(X[n] | 50, zeros, diag_matrix(xaligned_cov) + sigma[n]);
         
         // y-aligned
-        logpyaxis[n] =  log(1 - noise_weight) + log(mix_weights[1]) + log(1 - axes_mix_weight) + multi_student_t_log(X[n], 50, zeros, diag_matrix(yaligned_cov) + sigma[n]);
+        logpyaxis[n] =  log(1 - noise_weight) + log(mix_weights[1]) + log(1 - axes_mix_weight) + multi_student_t_lpdf(X[n] | 50, zeros, diag_matrix(yaligned_cov) + sigma[n]);
         
         // free
-        logpfree[n] = log(1 - noise_weight) + log(mix_weights[2]) + multi_student_t_log(X[n], 50, zeros, free_cov + sigma[n]);
+        logpfree[n] = log(1 - noise_weight) + log(mix_weights[2]) + multi_student_t_lpdf(X[n] | 50, zeros, free_cov + sigma[n]);
     }    
 }
 
